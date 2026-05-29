@@ -695,3 +695,28 @@ AND isRead = false
 ORDER BY createdAt DESC
 LIMIT 20;
 ```
+
+STAGE-4
+
+It fails as it does sequential execution making it very slow also highly dependent functions leads to high(coupling) Software engineering principle which is not advisable and also it can lead to scalability issues.
+
+
+
+FIRST SAVE THEN WE SHOULD SEND 
+because-it provides documented proof integrity and autenticity atherwise record and update mismatch
+
+
+```python id="f6u6fk"
+function notify_all(student_ids, message):
+
+    notification_batch_id = create_batch()
+
+    bulk_insert_notifications(student_ids, message)
+
+    publish_to_queue({
+        "batch_id": notification_batch_id
+    })
+
+    return {
+        "status": "accepted"
+    }
