@@ -288,3 +288,379 @@ Events Table
   "venue": "B Auditorium",
   "eventDate": "2026-06-15T10:00:00Z"
 }
+
+
+
+STAGE-2
+
+DB DESIGN
+
+1. Database to be used
+based on purpose different datbases can be used like of data transactions Sql based like MySql
+for real-time notification reddis can be usedand for large file size colud dtorage like cloudinary and imaginary can be used.
+
+If we used single or simple Sql/NosQl it can lead to tradeoff and later optimization problems
+
+Still if the choice is between sql and no sql I would prefer sql because
+ACID transaction and features like joins,indexing,analytics easy integration with powerBi like data analytics tool 
+
+problems on large volume data can be 
+1. Large notification handling a
+2. data redundancy and to manage duplicates
+3. pagination gets slow 
+4. Consistency issues occur
+ Big data concepts like decentralization cloud dbs and on this level using combination of multiple databases like hybrid mosel is best suited
+
+
+QUERIES
+
+# USERS TABLE
+
+```sql
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    department VARCHAR(50),
+    year INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+
+
+# EVENTS TABLE
+
+```sql
+CREATE TABLE events (
+    event_id UUID PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    venue VARCHAR(200),
+    organized_by VARCHAR(100),
+    event_date TIMESTAMP,
+    created_by UUID REFERENCES users(user_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+
+
+# PLACEMENTS TABLE
+
+```sql
+CREATE TABLE placements (
+    placement_id UUID PRIMARY KEY,
+    company_name VARCHAR(150) NOT NULL,
+    job_role VARCHAR(100),
+    package VARCHAR(50),
+    min_cgpa NUMERIC(3,2),
+    application_deadline TIMESTAMP,
+    description TEXT,
+    created_by UUID REFERENCES users(user_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+
+
+# RESULTS TABLE
+
+```sql
+CREATE TABLE results (
+    result_id UUID PRIMARY KEY,
+    student_id UUID REFERENCES users(user_id),
+    semester INT,
+    cgpa NUMERIC(3,2),
+    result_pdf_url TEXT,
+    published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+
+
+# NOTIFICATIONS TABLE
+
+```sql
+CREATE TABLE notifications (
+    notification_id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id),
+    title VARCHAR(200),
+    message TEXT,
+    type VARCHAR(50),
+    is_read BOOLEAN DEFAULT FALSE,
+    reference_id UUID,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+
+
+# EVENT REGISTRATIONS TABLE
+
+```sql
+CREATE TABLE event_registrations (
+    registration_id UUID PRIMARY KEY,
+    event_id UUID REFERENCES events(event_id),
+    student_id UUID REFERENCES users(user_id),
+    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+
+RESTFUL API BASED ON ABOVE APIS IN THIS FILE
+
+# Login Query
+
+API:
+
+
+POST /auth/login
+
+
+SQL:
+
+```sql
+SELECT user_id, email, password_hash, role
+FROM users
+WHERE email = '111shivangi.dubey@gmail.com';
+```
+
+
+
+# Get User Profile
+
+API:
+
+
+GET /users/profile
+
+
+SQL:
+
+```sql
+SELECT
+    user_id,
+    name,
+    email,
+    department,
+    year,
+    role
+FROM users
+WHERE user_id = 'U001';
+```
+
+
+
+# Create Placement
+
+API:
+
+
+POST /placements
+
+
+SQL:
+
+```sql
+INSERT INTO placements (
+    placement_id,
+    company_name,
+    job_role,
+    package,
+    min_cgpa,
+    application_deadline,
+    description,
+    created_by
+)
+VALUES (
+    gen_random_uuid(),
+    'abc',
+    'Software Engineer',
+    '10 LPA',
+    7.5,
+    '2026-06-15',
+    'Hiring for 2027 batch',
+    'U001'
+);
+
+
+---
+
+# Fetch Placements
+
+API:
+
+
+GET /placements
+
+
+SQL:
+
+```sql
+SELECT
+    placement_id,
+    company_name,
+    job_role,
+    package,
+    application_deadline
+FROM placements
+ORDER BY created_at DESC
+LIMIT 10 OFFSET 0;
+```
+
+
+
+# Create Event
+
+API:
+
+
+POST /events
+
+
+SQL:
+
+```sql
+INSERT INTO events (
+    event_id,
+    title,
+    description,
+    venue,
+    organized_by,
+    event_date,
+    created_by
+)
+VALUES (
+    gen_random_uuid(),
+    'Tech Festn 2026',
+    '24 hour coding event',
+    'B Auditorium',
+    'tech Club',
+    '2026-06-15 10:00:00',
+    'USR2001'
+);
+```
+
+---
+
+# Register for Event
+
+API:
+
+POST /events/{eventId}/register
+
+SQL:
+
+```sql
+INSERT INTO event_registrations (
+    registration_id,
+    event_id,
+    student_id
+)
+VALUES (
+    gen_random_uuid(),
+    'E001',
+    'U001'
+);
+```
+
+
+
+# Fetch Notifications
+
+API:
+
+
+GET /notifications
+
+
+SQL:
+
+```sql
+SELECT
+    notification_id,
+    title,
+    message,
+    type,
+    is_read,
+    created_at
+FROM notifications
+WHERE user_id = 'U001'
+ORDER BY created_at DESC
+LIMIT 20;
+```
+
+
+
+# Mark Notification Read
+
+API:
+
+
+PATCH /notifications/{id}/read
+
+
+SQL:
+
+```sql
+UPDATE notifications
+SET is_read = TRUE
+WHERE notification_id = 'NOT1001';
+```
+
+
+
+# Publish Result
+
+API:
+
+
+POST /results
+
+
+SQL:
+
+```sql
+INSERT INTO results (
+    result_id,
+    student_id,
+    semester,
+    cgpa,
+    result_pdf_url
+)
+VALUES (
+    gen_random_uuid(),
+    'USR1001',
+    5,
+    8.4,
+    'result.pdf'
+);
+```
+
+
+
+# Fetch Student Results
+
+API:
+
+
+GET /results/{studentId}
+
+
+SQL:
+
+```sql
+SELECT
+    semester,
+    cgpa,
+    result_pdf_url,
+    published_at
+FROM results
+WHERE student_id = 'U001';
+```
+
+
+
