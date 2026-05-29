@@ -662,5 +662,36 @@ FROM results
 WHERE student_id = 'U001';
 ```
 
+STAGE-3
+The given query seem correct 
+It;s function is to fetch notification from students(unread) based on recenecy as mentioned in question
 
 
+
+This query can become slow the data is large scale and no proper indexing is done and multiple scans ansd access at same point.
+
+Yes indexing is good idea because otherwise it will scan entire database check every row and sort basded on it 
+BUT----
+indexing every column is bad as it requires extra space increases splce complexities make operations slower and overhead is craeted
+computational overhead 
+high time and sapce complexity 
+FINALLY NOT A GOOD IDEA
+Indexing can be used selectively
+computational cost is 
+based on time and space complexities
+
+
+BETTER QUERY
+
+```sql id="abc123"
+SELECT
+    notificationID,
+    title,
+    message,
+    createdAt
+FROM notifications
+WHERE studentID = 1042
+AND isRead = false
+ORDER BY createdAt DESC
+LIMIT 20;
+```
