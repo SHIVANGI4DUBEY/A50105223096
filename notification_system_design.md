@@ -723,7 +723,7 @@ function notify_all(student_ids, message):
 
 STAGE-5
 
-```javascript id="dkw5oo"
+```
 const API_URL =
   "http://4.224.187.222/evaluation-service/notifications";
 
