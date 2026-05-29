@@ -706,7 +706,9 @@ FIRST SAVE THEN WE SHOULD SEND
 because-it provides documented proof integrity and autenticity atherwise record and update mismatch
 
 
-```python id="f6u6fk"
+STAGE-5
+
+
 function notify_all(student_ids, message):
 
     notification_batch_id = create_batch()
@@ -721,7 +723,7 @@ function notify_all(student_ids, message):
         "status": "accepted"
     }
 
-STAGE-5
+STAGE-6
 
 ```
 const API_URL =
